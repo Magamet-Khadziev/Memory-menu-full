@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMORY | Миграция данных</title>
+    
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            background: #EDE4D8;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: #2C1810;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(44, 24, 16, 0.1);
+            margin-bottom: 20px;
+        }
+        button {
+            background: #C4956A;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #A67B52; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .log {
+            background: #2C1810;
+            color: #F8F4F0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #E74C3C; }
+        .warning { color: #FF9800; }
+    </style>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <h1>🔄 Миграция данных в Firebase</h1>
+    
+    <div class="card">
+        <h2>Шаг 1: Подключение старых данных</h2>
+        <p>Нажмите "Загрузить старые данные", чтобы подключить файлы из <code>js/data/*.js</code></p>
+        <button id="btn-load-old">1️⃣ Загрузить старые данные</button>
+    </div>
+
+    <div class="card">
+        <h2>Шаг 2: Проверка</h2>
+        <p>После загрузки проверьте, что данные видны ниже.</p>
+        <button id="btn-check" disabled>2️⃣ Проверить данные</button>
+    </div>
+
+    <div class="card">
+        <h2>Шаг 3: Отправка в Firebase</h2>
+        <p>⚠️ Внимание! Данные будут добавлены в Firestore. Существующие данные не удаляются.</p>
+        <button id="btn-migrate" disabled>3️⃣ Отправить в Firebase</button>
+    </div>
+
+    <div class="log" id="log">Готово к работе...</div>
+
+    <!-- Старые данные (подключаем через обычные скрипты) -->
+    <script src="js/data/breakfasts.js"></script>
+    <script src="js/data/coffee.js"></script>
+    <script src="js/data/teas.js"></script>
+    <script src="js/data/lemonades.js"></script>
+    <script src="js/data/cocktails.js"></script>
+    <script src="js/data/main.js"></script>
+    <script src="js/data/desserts.js"></script>
+    <script src="js/data/salads.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+
+    <script>
+        const log = document.getElementById('log');
+        const CATEGORIES = ['breakfasts', 'coffee', 'teas', 'lemonades', 'cocktails', 'main', 'desserts', 'salads'];
+        let loadedData = {};
+
+        function writeLog(msg, cls = '') {
+            log.innerHTML += `\n<span class="${cls}">${msg}</span>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // ШАГ 1: Загрузка старых данных
+        document.getElementById('btn-load-old').addEventListener('click', function() {
+            log.innerHTML = '1️⃣ Загрузка старых данных...\n';
+            
+            try {
+                loadedData = {
+                    breakfasts: typeof breakfastsData !== 'undefined' ? breakfastsData : [],
+                    coffee: typeof coffeeData !== 'undefined' ? coffeeData : [],
+                    teas: typeof teasData !== 'undefined' ? teasData : [],
+                    lemonades: typeof lemonadesData !== 'undefined' ? lemonadesData : [],
+                    cocktails: typeof cocktailsData !== 'undefined' ? cocktailsData : [],
+                    main: typeof mainData !== 'undefined' ? mainData : [],
+                    desserts: typeof dessertsData !== 'undefined' ? dessertsData : [],
+                    salads: typeof saladsData !== 'undefined' ? saladsData : []
+                };
+                
+                let total = 0;
+                CATEGORIES.forEach(cat => {
+                    const count = loadedData[cat].length;
+                    total += count;
+                    writeLog(`   ${cat}: ${count} позиций`, count > 0 ? 'success' : 'warning');
+                });
+                
+                writeLog(`\n✅ Всего загружено: ${total} позиций`, 'success');
+                
+                document.getElementById('btn-check').disabled = false;
+                document.getElementById('btn-migrate').disabled = false;
+                
+            } catch (e) {
+                writeLog('❌ Ошибка: ' + e.message, 'error');
+            }
+        });
+
+        // ШАГ 2: Проверка
+        document.getElementById('btn-check').addEventListener('click', function() {
+            writeLog('\n2️⃣ Проверка данных...');
+            
+            CATEGORIES.forEach(cat => {
+                if (loadedData[cat] && loadedData[cat].length > 0) {
+                    const first = loadedData[cat][0];
+                    writeLog(`   ${cat}: первое блюдо — "${first.name}"`, 'success');
+                } else {
+                    writeLog(`   ${cat}: пусто`, 'warning');
+                }
+            });
+        });
+
+        // ШАГ 3: Миграция в Firebase
+        document.getElementById('btn-migrate').addEventListener('click', async function() {
+            if (!confirm('Отправить все данные в Firebase? Это займёт время.')) return;
+            
+            this.disabled = true;
+            this.textContent = '⏳ Отправка...';
+            
+            writeLog('\n3️⃣ Миграция в Firebase...');
+            
+            try {
+                await initFirebase();
+                writeLog('   ✅ Firebase инициализирован', 'success');
+                
+                let totalAdded = 0;
+                
+                for (const cat of CATEGORIES) {
+                    if (!loadedData[cat] || loadedData[cat].length === 0) {
+                        writeLog(`   ${cat}: пропущено (пусто)`);
+                        continue;
+                    }
+                    
+                    writeLog(`\n   📦 ${cat}: ${loadedData[cat].length} позиций`);
+                    
+                    for (const dish of loadedData[cat]) {
+                        try {
+                            // Убираем id из данных
+                            const dishData = { ...dish };
+                            delete dishData.id;
+                            
+                            await firebaseDB.collection(cat).add(dishData);
+                            totalAdded++;
+                            
+                            writeLog(`      ➕ "${dish.name}"`, 'success');
+                        } catch (e) {
+                            writeLog(`      ❌ Ошибка "${dish.name}": ${e.message}`, 'error');
+                        }
+                    }
+                }
+                
+                writeLog(`\n🎉 МИГРАЦИЯ ЗАВЕРШЕНА!`, 'success');
+                writeLog(`✅ Добавлено в Firebase: ${totalAdded} позиций`, 'success');
+                writeLog(`\nОткройте админку: http://localhost:8000/admin.html`, 'success');
+                
+                this.textContent = '✅ Готово!';
+                
+            } catch (e) {
+                writeLog('❌ Ошибка миграции: ' + e.message, 'error');
+                this.disabled = false;
+                this.textContent = '3️⃣ Отправить в Firebase';
+            }
+        });
+    </script>
+</body>
+</html>

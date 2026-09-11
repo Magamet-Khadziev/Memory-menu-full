@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MEMORY | Админ-панель</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/admin.css">
+
+    <!-- Firebase SDK (без Storage) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div id="admin-app">
+        <header class="admin-header">
+            <h1>MEMORY</h1>
+            <div class="admin-header-sub">Панель управления меню</div>
+            
+            <div class="admin-header-actions">
+                <button id="btn-export" class="btn-header">💾 Экспорт</button>
+                <button id="btn-import" class="btn-header">📂 Импорт</button>
+                <input type="file" id="import-file" accept=".json" style="display: none;">
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <aside class="admin-sidebar">
+                <h2>Категории</h2>
+                <div id="categories-list" class="categories-list"></div>
+            </aside>
+
+            <main class="admin-main">
+                <div class="admin-main-header">
+                    <h2 id="current-category-title">Выберите категорию</h2>
+                    <button id="btn-add-dish" class="btn btn-primary" style="display: none;">
+                        ➕ Добавить позицию
+                    </button>
+                </div>
+                <div id="dishes-list" class="dishes-list">
+                    <div class="empty-state">Выберите категорию слева</div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div id="modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Добавить позицию</h2>
+                <button id="btn-close-modal" class="btn-close">✕</button>
+            </div>
+            <form id="dish-form" class="modal-form">
+                <input type="hidden" id="dish-id" value="">
+                <input type="hidden" id="dish-image" value="">
+                
+                <!-- ЗАГРУЗКА ФОТО -->
+                <div class="form-group">
+                    <label>Фото блюда</label>
+                    
+                    <input type="file" id="dish-image-file" accept="image/*" style="display: none;">
+                    
+                    <div class="image-upload-row">
+                        <button type="button" id="btn-pick-image" class="btn btn-secondary">
+                            📷 Выбрать фото
+                        </button>
+                        <button type="button" id="btn-clear-image" class="btn btn-secondary" style="display: none;">
+                            🗑 Очистить
+                        </button>
+                    </div>
+                    
+                    <div id="image-preview" class="image-preview" style="display: none;">
+                        <img id="image-preview-img" src="" alt="Превью">
+                        <div id="upload-status" class="upload-status"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dish-name">Название *</label>
+                    <input type="text" id="dish-name" required placeholder="Например: Капучино">
+                </div>
+                
+                <div class="form-group">
+                    <label for="dish-description">Описание</label>
+                    <textarea id="dish-description" rows="2" placeholder="Краткое описание блюда"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dish-composition">Состав</label>
+                    <textarea id="dish-composition" rows="2" placeholder="Ингредиенты через запятую"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dish-volume">Объём / вес</label>
+                        <input type="text" id="dish-volume" placeholder="300 мл">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dish-price">Цена *</label>
+                        <input type="text" id="dish-price" required placeholder="250 ₽">
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" id="btn-cancel" class="btn btn-secondary">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
