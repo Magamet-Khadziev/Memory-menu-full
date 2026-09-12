@@ -28,8 +28,21 @@ function initFirebase() {
                 try {
                     firebaseApp = firebase.initializeApp(firebaseConfig);
                     firebaseDB = firebase.firestore();
-                    firebaseReady = true;
                     
+                    // ⚡ ВКЛЮЧАЕМ ОФЛАЙН-РЕЖИМ FIREBASE
+                    firebaseDB.enablePersistence({ synchronizeTabs: true })
+                        .then(() => {
+                            console.log('✅ Firebase офлайн-режим включён');
+                        })
+                        .catch((err) => {
+                            if (err.code === 'failed-precondition') {
+                                console.warn('⚠️ Офлайн-режим: несколько вкладок открыто');
+                            } else if (err.code === 'unimplemented') {
+                                console.warn('⚠️ Офлайн-режим не поддерживается браузером');
+                            }
+                        });
+                    
+                    firebaseReady = true;
                     console.log('✅ Firebase инициализирован');
                     resolve(firebaseDB);
                 } catch (e) {
@@ -47,7 +60,6 @@ function initFirebase() {
         }, 10000);
     });
 }
-
 // ========================================
 // СЖАТИЕ ФОТО
 // ========================================
