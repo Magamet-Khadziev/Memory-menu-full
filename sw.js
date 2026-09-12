@@ -2,8 +2,8 @@
 // SERVICE WORKER - ОФЛАЙН КЕШИРОВАНИЕ
 // ========================================
 
-const CACHE_NAME = 'memory-v3';
-const RUNTIME_CACHE = 'memory-runtime-v3';
+const CACHE_NAME = 'memory-v4';
+const RUNTIME_CACHE = 'memory-runtime-v4';
 
 // Файлы для предварительного кеширования
 const PRECACHE_URLS = [

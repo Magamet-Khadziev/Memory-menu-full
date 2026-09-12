@@ -31,14 +31,12 @@ function initFirebase() {
                     
                     // ⚡ ВКЛЮЧАЕМ ОФЛАЙН-РЕЖИМ FIREBASE
                     firebaseDB.enablePersistence({ synchronizeTabs: true })
-                        .then(() => {
-                            console.log('✅ Firebase офлайн-режим включён');
-                        })
-                        .catch((err) => {
+                        .then(() => console.log('✅ Firebase офлайн-режим включён'))
+                        .catch(err => {
                             if (err.code === 'failed-precondition') {
                                 console.warn('⚠️ Офлайн-режим: несколько вкладок открыто');
                             } else if (err.code === 'unimplemented') {
-                                console.warn('⚠️ Офлайн-режим не поддерживается браузером');
+                                console.warn('⚠️ Офлайн-режим не поддерживается');
                             }
                         });
                     
@@ -46,7 +44,7 @@ function initFirebase() {
                     console.log('✅ Firebase инициализирован');
                     resolve(firebaseDB);
                 } catch (e) {
-                    console.error('❌ Ошибка инициализации Firebase:', e);
+                    console.error('❌ Ошибка инициализации:', e);
                     reject(e);
                 }
             }
@@ -55,7 +53,7 @@ function initFirebase() {
         setTimeout(() => {
             clearInterval(checkInterval);
             if (!firebaseReady) {
-                reject(new Error('Firebase не загрузился за 10 секунд'));
+                reject(new Error('Firebase не загрузился'));
             }
         }, 10000);
     });
