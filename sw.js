@@ -2,8 +2,8 @@
 // SERVICE WORKER - ОФЛАЙН-РЕЖИМ
 // ========================================
 
-const CACHE_NAME = 'memory-v10';
-const RUNTIME_CACHE = 'memory-runtime-v10';
+const CACHE_NAME = 'memory-v20';
+const RUNTIME_CACHE = 'memory-runtime-v20';
 
 // Основные файлы
 const PRECACHE_URLS = [
@@ -11,6 +11,7 @@ const PRECACHE_URLS = [
     './index.html',
     './admin.html',
     './manifest.json',
+    './manifest-admin.json',
     './css/style.css',
     './css/admin.css',
     './js/firebase-config.js',
