@@ -1,5 +1,5 @@
 // ========================================
-// FIREBASE КОНФИГУРАЦИЯ
+// FIREBASE КОНФИГУРАЦИЯ + ОФЛАЙН-РЕЖИМ
 // ========================================
 
 const firebaseConfig = {
@@ -31,12 +31,16 @@ function initFirebase() {
                     
                     // ⚡ ВКЛЮЧАЕМ ОФЛАЙН-РЕЖИМ FIREBASE
                     firebaseDB.enablePersistence({ synchronizeTabs: true })
-                        .then(() => console.log('✅ Firebase офлайн-режим включён'))
+                        .then(() => {
+                            console.log('✅ Firebase офлайн-режим включён');
+                        })
                         .catch(err => {
                             if (err.code === 'failed-precondition') {
                                 console.warn('⚠️ Офлайн-режим: несколько вкладок открыто');
                             } else if (err.code === 'unimplemented') {
                                 console.warn('⚠️ Офлайн-режим не поддерживается');
+                            } else {
+                                console.warn('⚠️ Офлайн-режим:', err);
                             }
                         });
                     
@@ -53,22 +57,16 @@ function initFirebase() {
         setTimeout(() => {
             clearInterval(checkInterval);
             if (!firebaseReady) {
-                reject(new Error('Firebase не загрузился'));
+                reject(new Error('Firebase не загрузился за 10 секунд'));
             }
         }, 10000);
     });
 }
+
 // ========================================
-// СЖАТИЕ ФОТО
+// СЖАТИЕ ФОТО (для админки)
 // ========================================
 
-/**
- * Сжимает фото до указанного размера и возвращает base64
- * @param {File} file - файл изображения
- * @param {number} maxSize - максимальный размер в KB (по умолчанию 500)
- * @param {number} maxWidth - максимальная ширина (по умолчанию 1200px)
- * @returns {Promise<string>} - base64 строка
- */
 function compressImage(file, maxSize = 500, maxWidth = 1200) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -77,12 +75,10 @@ function compressImage(file, maxSize = 500, maxWidth = 1200) {
             const img = new Image();
             
             img.onload = function() {
-                // Создаём canvas
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
                 
-                // Уменьшаем размер если нужно
                 if (width > maxWidth) {
                     height = (maxWidth / width) * height;
                     width = maxWidth;
@@ -94,24 +90,18 @@ function compressImage(file, maxSize = 500, maxWidth = 1200) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
                 
-                // Начинаем с качества 0.9 и уменьшаем
                 let quality = 0.9;
                 let dataUrl = canvas.toDataURL('image/jpeg', quality);
                 
-                // Проверяем размер
                 let currentSize = Math.round((dataUrl.length - 'data:image/jpeg;base64,'.length) * 3 / 4 / 1024);
-                
                 console.log(`📊 Начальный размер: ${currentSize} КБ`);
                 
-                // Уменьшаем качество пока размер > maxSize
                 while (currentSize > maxSize && quality > 0.3) {
                     quality -= 0.1;
                     dataUrl = canvas.toDataURL('image/jpeg', quality);
                     currentSize = Math.round((dataUrl.length - 'data:image/jpeg;base64,'.length) * 3 / 4 / 1024);
-                    console.log(`📉 Уменьшаем до качества ${quality.toFixed(1)}: ${currentSize} КБ`);
                 }
                 
-                // Если всё ещё большое — уменьшаем разрешение
                 if (currentSize > maxSize) {
                     const scale = Math.sqrt(maxSize / currentSize);
                     const newWidth = Math.round(width * scale);
@@ -123,24 +113,17 @@ function compressImage(file, maxSize = 500, maxWidth = 1200) {
                     
                     dataUrl = canvas.toDataURL('image/jpeg', 0.85);
                     currentSize = Math.round((dataUrl.length - 'data:image/jpeg;base64,'.length) * 3 / 4 / 1024);
-                    console.log(`📉 Уменьшаем разрешение до ${newWidth}x${newHeight}: ${currentSize} КБ`);
                 }
                 
                 console.log(`✅ Финальный размер: ${currentSize} КБ`);
                 resolve(dataUrl);
             };
             
-            img.onerror = function() {
-                reject(new Error('Ошибка загрузки изображения'));
-            };
-            
+            img.onerror = () => reject(new Error('Ошибка загрузки изображения'));
             img.src = e.target.result;
         };
         
-        reader.onerror = function() {
-            reject(new Error('Ошибка чтения файла'));
-        };
-        
+        reader.onerror = () => reject(new Error('Ошибка чтения файла'));
         reader.readAsDataURL(file);
     });
 }

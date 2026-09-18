@@ -1,11 +1,11 @@
 // ========================================
-// SERVICE WORKER - ОФЛАЙН КЕШИРОВАНИЕ
+// SERVICE WORKER - ОФЛАЙН-РЕЖИМ
 // ========================================
 
-const CACHE_NAME = 'memory-v4';
-const RUNTIME_CACHE = 'memory-runtime-v4';
+const CACHE_NAME = 'memory-v10';
+const RUNTIME_CACHE = 'memory-runtime-v10';
 
-// Файлы для предварительного кеширования
+// Основные файлы
 const PRECACHE_URLS = [
     './',
     './index.html',
@@ -31,7 +31,7 @@ self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('📦 Кеширование основных файлов');
+                console.log('📦 Кешируем основные файлы');
                 return cache.addAll(PRECACHE_URLS);
             })
             .then(() => {
@@ -61,44 +61,49 @@ self.addEventListener('activate', event => {
                     }
                 })
             );
-        }).then(() => {
-            return self.clients.claim();
-        })
+        }).then(() => self.clients.claim())
     );
 });
 
 // ========================================
-// ЗАПРОСЫ
+// ЗАПРОСЫ (Cache First)
 // ========================================
 
 self.addEventListener('fetch', event => {
     const request = event.request;
     const url = new URL(request.url);
     
-    // Пропускаем не-GET запросы
+    // Только GET
     if (request.method !== 'GET') return;
     
-    // Пропускаем Firebase (данные грузятся из Firestore SDK)
+    // Пропускаем Firebase и Google APIs
     if (url.hostname.includes('firebase') || 
         url.hostname.includes('googleapis') ||
-        url.hostname.includes('gstatic')) {
+        url.hostname.includes('gstatic') ||
+        url.hostname.includes('firestore')) {
         return;
     }
     
-    // Стратегия: Cache First (кеш первым)
     event.respondWith(
         caches.match(request).then(cachedResponse => {
             if (cachedResponse) {
+                // Возвращаем из кеша + обновляем в фоне
+                fetch(request).then(response => {
+                    if (response && response.status === 200) {
+                        caches.open(RUNTIME_CACHE).then(cache => {
+                            cache.put(request, response);
+                        });
+                    }
+                }).catch(() => {});
+                
                 return cachedResponse;
             }
             
             return fetch(request).then(response => {
-                // Кешируем только успешные ответы
                 if (!response || response.status !== 200 || response.type === 'error') {
                     return response;
                 }
                 
-                // Кешируем картинки и статику
                 const shouldCache = 
                     request.destination === 'image' ||
                     request.destination === 'style' ||
@@ -115,14 +120,12 @@ self.addEventListener('fetch', event => {
                 
                 return response;
             }).catch(err => {
-                console.log('⚠️ Офлайн, файл не найден:', request.url);
+                console.log('⚠️ Офлайн:', request.url);
                 
-                // Для навигации — отдаём index.html
                 if (request.mode === 'navigate') {
                     return caches.match('./index.html');
                 }
                 
-                // Для картинок — placeholder
                 if (request.destination === 'image') {
                     return new Response(
                         '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><rect width="300" height="200" fill="#E8D5C4"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#99806B" font-size="24">📷</text></svg>',

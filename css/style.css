@@ -852,3 +852,186 @@ body {
         }
     }
 }
+/* ========================================
+   ПРЕМИАЛЬНЫЕ АНИМАЦИИ
+   ======================================== */
+
+/* --- Появление страницы --- */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* --- Общая анимация контента --- */
+.content {
+    animation: fadeIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --- Карточки категорий: каскадное появление --- */
+.category-card {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    transition: 
+        transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Каскад — каждая карточка появляется с задержкой */
+.category-card:nth-child(1) { animation-delay: 0.05s; }
+.category-card:nth-child(2) { animation-delay: 0.10s; }
+.category-card:nth-child(3) { animation-delay: 0.15s; }
+.category-card:nth-child(4) { animation-delay: 0.20s; }
+.category-card:nth-child(5) { animation-delay: 0.25s; }
+.category-card:nth-child(6) { animation-delay: 0.30s; }
+.category-card:nth-child(7) { animation-delay: 0.35s; }
+.category-card:nth-child(8) { animation-delay: 0.40s; }
+
+/* --- Карточки блюд: каскадное появление --- */
+.item-card {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    transition: 
+        transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.item-card:nth-child(1) { animation-delay: 0.05s; }
+.item-card:nth-child(2) { animation-delay: 0.10s; }
+.item-card:nth-child(3) { animation-delay: 0.15s; }
+.item-card:nth-child(4) { animation-delay: 0.20s; }
+.item-card:nth-child(5) { animation-delay: 0.25s; }
+.item-card:nth-child(6) { animation-delay: 0.30s; }
+.item-card:nth-child(7) { animation-delay: 0.35s; }
+.item-card:nth-child(8) { animation-delay: 0.40s; }
+.item-card:nth-child(9) { animation-delay: 0.45s; }
+.item-card:nth-child(10) { animation-delay: 0.50s; }
+.item-card:nth-child(11) { animation-delay: 0.55s; }
+.item-card:nth-child(12) { animation-delay: 0.60s; }
+
+/* --- Заголовки: плавное появление --- */
+.brand h1 {
+    animation: fadeInScale 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.brand .subtitle {
+    animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+}
+
+.category-header {
+    animation: slideInRight 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --- Навигация: плавное появление снизу --- */
+.bottom-nav {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+
+/* --- Фото блюд: плавное проявление --- */
+.item-image,
+.category-image,
+.detail-image {
+    animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 1;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.4s ease;
+}
+
+/* --- Нажатие: мягкое уменьшение --- */
+.category-card:active {
+    transform: scale(0.97);
+    transition-duration: 0.15s;
+}
+
+.item-card:active {
+    transform: scale(0.97);
+    transition-duration: 0.15s;
+}
+
+.nav-btn:active {
+    transform: scale(0.95);
+    transition-duration: 0.15s;
+}
+
+/* --- Детальная страница --- */
+.detail-page {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.detail-image {
+    animation: fadeInScale 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.detail-name {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+}
+
+.detail-description {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.15s backwards;
+}
+
+.detail-composition,
+.detail-volume {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+
+.detail-price {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.25s backwards;
+}
+
+/* --- Разделитель --- */
+.divider-item {
+    animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --- Ховер карточек (компьютер) --- */
+@media (hover: hover) {
+    .category-card:hover {
+        transform: translateY(-6px) scale(1.01);
+    }
+    
+    .item-card:hover {
+        transform: translateY(-4px) scale(1.01);
+    }
+}
+
+/* --- Отключаем анимации при "уменьшенном движении" --- */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
