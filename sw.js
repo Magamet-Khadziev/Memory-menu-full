@@ -2,8 +2,8 @@
 // SERVICE WORKER - ОФЛАЙН-РЕЖИМ
 // ========================================
 
-const CACHE_NAME = 'memory-v20';
-const RUNTIME_CACHE = 'memory-runtime-v20';
+const CACHE_NAME = 'memory-v31';
+const RUNTIME_CACHE = 'memory-runtime-v31';
 
 // Основные файлы
 const PRECACHE_URLS = [
